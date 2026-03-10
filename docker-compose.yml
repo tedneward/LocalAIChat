@@ -1,0 +1,50 @@
+services:
+
+  aichat-ollama:
+    image: ollama/ollama:latest
+    container_name: aichat-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+  aichat-searxng:
+    image: searxng/searxng:latest
+    container_name: aichat-searxng
+    ports:
+      - "3001:8080"
+    volumes:
+      - ./searxng:/etc/searxng
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+  aichat-openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: aichat-openwebui
+    depends_on:
+      - aichat-ollama
+      - aichat-searxng
+    ports:
+      - "3000:8080"
+    environment:
+      - WEBUI_AUTH=False
+      - WEBUI_SECRET_KEY=secretkey
+      - OLLAMA_BASE_URL=http://aichat-ollama:11434
+      - WEBUI_SEARCH_ENGINE=searxng
+      - SEARXNG_QUERY_URL=http://aichat-searxng:8080/search?q=<query>&format=json
+    volumes:
+      - ./openwebui:/app/backend/data
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+networks:
+  ai-network:
+    driver: bridge
+
