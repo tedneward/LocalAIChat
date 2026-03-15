@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   aichat-openwebui:
-    image: ghcr.io/open-webui/open-webui:main
+    image: ghcr.io/open-webui/open-webui:latest
     container_name: aichat-openwebui
     depends_on:
       - aichat-ollama
