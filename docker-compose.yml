@@ -3,6 +3,13 @@ services:
   aichat-ollama:
     image: ollama/ollama:latest
     container_name: aichat-ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              count: all
     ports:
       - "11434:11434"
     volumes:
